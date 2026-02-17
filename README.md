@@ -52,7 +52,7 @@ When using h2c-manager, both are auto-resolved as dependencies.
 - additionalScrapeConfigs
 - Grafana datasource auto-wiring (use a `replacement` in `helmfile2compose.yaml` to rewrite `kube-prometheus-stack-prometheus.monitoring` → `prometheus`)
 
-For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://helmfile2compose.github.io/maintainer/kube-prometheus-stack/).
+For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://helmfile2compose.github.io/maintainer/known-workarounds/kube-prometheus-stack/).
 
 ## Usage
 
