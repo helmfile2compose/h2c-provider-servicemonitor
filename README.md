@@ -1,4 +1,4 @@
-# h2c-operator-servicemonitor
+# h2c-provider-servicemonitor
 
 ![vibe coded](https://img.shields.io/badge/vibe-coded-ff69b4)
 ![python 3](https://img.shields.io/badge/python-3-3776AB)
@@ -15,7 +15,7 @@ ServiceMonitor & Prometheus CRD converter for [helmfile2compose](https://github.
 
 ## What it does
 
-Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static Prometheus instance and auto-generated scrape configuration. Instead of a Prometheus Operator watching ServiceMonitor CRDs at runtime, this operator resolves them at conversion time and produces a `prometheus.yml` with `static_configs`.
+Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static Prometheus instance and auto-generated scrape configuration. Instead of a Prometheus Operator watching ServiceMonitor CRDs at runtime, this provider resolves them at conversion time and produces a `prometheus.yml` with `static_configs`.
 
 **Prometheus CR:**
 - Extracts `spec.image`, `spec.version`, `spec.retention` for the compose service
@@ -36,7 +36,7 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 
 ## Optional companions
 
-- **h2c-operator-cert-manager** + **h2c-operator-trust-manager** -- needed only for HTTPS scrape targets with CA bundle mounting. Not required for HTTP-only scraping.
+- **h2c-converter-cert-manager** + **h2c-converter-trust-manager** -- needed only for HTTPS scrape targets with CA bundle mounting. Not required for HTTP-only scraping.
 
 ## Dependencies
 
@@ -59,16 +59,16 @@ Via h2c-manager (recommended):
 python3 h2c-manager.py servicemonitor
 ```
 
-Manual (all operators must be in the same directory):
+Manual (all extensions must be in the same directory):
 
 ```bash
-mkdir -p operators
-cp h2c-operator-cert-manager/cert_manager.py operators/
-cp h2c-operator-trust-manager/trust_manager.py operators/
-cp h2c-operator-servicemonitor/servicemonitor.py operators/
+mkdir -p extensions
+cp h2c-converter-cert-manager/cert_manager.py extensions/
+cp h2c-converter-trust-manager/trust_manager.py extensions/
+cp h2c-provider-servicemonitor/servicemonitor.py extensions/
 
 python3 helmfile2compose.py \
-  --extensions-dir ./operators \
+  --extensions-dir ./extensions \
   --helmfile-dir ~/my-platform -e local --output-dir .
 ```
 
