@@ -13,14 +13,15 @@ import sys
 
 import yaml
 
-from helmfile2compose import ConvertResult
+from helmfile2compose import ConvertResult, Provider
 
 
-class ServiceMonitorConverter:
+class ServiceMonitorProvider(Provider):
     """Convert Prometheus + ServiceMonitor CRDs to a Prometheus compose service."""
 
+    name = "servicemonitor"
     kinds = ["Prometheus", "ServiceMonitor"]
-    priority = 60
+    priority = 600
 
     def __init__(self):
         self._prometheus_spec: dict | None = None
