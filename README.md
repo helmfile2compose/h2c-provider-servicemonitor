@@ -6,7 +6,7 @@
 ![pyyaml](https://img.shields.io/badge/dependencies-pyyaml-blue)
 ![public domain](https://img.shields.io/badge/license-public%20domain-brightgreen)
 
-ServiceMonitor & Prometheus CRD converter for [helmfile2compose](https://github.com/helmfile2compose/h2c-core).
+ServiceMonitor & Prometheus CRD converter for [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose).
 
 ## Handled kinds
 
