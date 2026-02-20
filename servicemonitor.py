@@ -13,7 +13,7 @@ import sys
 
 import yaml
 
-from helmfile2compose import ConvertResult, Provider
+from h2c import ConvertResult, Provider
 
 
 class ServiceMonitorProvider(Provider):
