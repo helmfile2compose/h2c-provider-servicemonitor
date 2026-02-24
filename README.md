@@ -32,7 +32,7 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 
 ## Priority
 
-`60` -- runs after keycloak (priority 50, which may create Services that ServiceMonitors target) and after trust-manager (priority 20, which provides CA bundle ConfigMaps for TLS-enabled scrape targets).
+`600` -- runs after keycloak (priority 500, which may create Services that ServiceMonitors target) and after trust-manager (priority 200, which provides CA bundle ConfigMaps for TLS-enabled scrape targets).
 
 ## Optional companions
 
