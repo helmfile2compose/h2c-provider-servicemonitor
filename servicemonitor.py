@@ -13,7 +13,7 @@ import sys
 
 import yaml
 
-from h2c import ProviderResult, Provider  # pylint: disable=import-error  # h2c resolves at runtime
+from dekube import ProviderResult, Provider  # pylint: disable=import-error  # h2c resolves at runtime
 
 
 class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-methods  # contract: one class, one method

@@ -1,4 +1,4 @@
-# h2c-provider-servicemonitor
+# dekube-provider-servicemonitor
 
 ![vibe coded](https://img.shields.io/badge/vibe-coded-ff69b4)
 ![python 3](https://img.shields.io/badge/python-3-3776AB)
@@ -6,7 +6,7 @@
 ![pyyaml](https://img.shields.io/badge/dependencies-pyyaml-blue)
 ![public domain](https://img.shields.io/badge/license-public%20domain-brightgreen)
 
-ServiceMonitor & Prometheus CRD converter for [helmfile2compose](https://github.com/helmfile2compose/helmfile2compose).
+ServiceMonitor & Prometheus CRD converter for [dekube](https://dekube.io).
 
 ## Handled kinds
 
@@ -36,11 +36,11 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 
 ## Optional companions
 
-- **h2c-converter-cert-manager** + **h2c-converter-trust-manager** -- needed only for HTTPS scrape targets with CA bundle mounting. Not required for HTTP-only scraping.
+- **dekube-converter-cert-manager** + **dekube-converter-trust-manager** -- needed only for HTTPS scrape targets with CA bundle mounting. Not required for HTTP-only scraping.
 
 ## Dependencies
 
-- `pyyaml` -- already required by h2c-core. Used to generate `prometheus.yml`.
+- `pyyaml` -- already required by dekube-engine. Used to generate `prometheus.yml`.
 
 ## What it does NOT handle (v1)
 
@@ -49,23 +49,23 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 - additionalScrapeConfigs
 - Grafana datasource auto-wiring (use a `replacement` in `helmfile2compose.yaml` to rewrite `kube-prometheus-stack-prometheus.monitoring` → `prometheus`)
 
-For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://helmfile2compose.github.io/maintainer/known-workarounds/kube-prometheus-stack/).
+For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://docs.dekube.io/maintainer/known-workarounds/kube-prometheus-stack/).
 
 ## Usage
 
-Via h2c-manager (recommended):
+Via dekube-manager (recommended):
 
 ```bash
-python3 h2c-manager.py servicemonitor
+python3 dekube-manager.py servicemonitor
 ```
 
 Manual (all extensions must be in the same directory):
 
 ```bash
 mkdir -p extensions
-cp h2c-converter-cert-manager/cert_manager.py extensions/
-cp h2c-converter-trust-manager/trust_manager.py extensions/
-cp h2c-provider-servicemonitor/servicemonitor.py extensions/
+cp dekube-converter-cert-manager/cert_manager.py extensions/
+cp dekube-converter-trust-manager/trust_manager.py extensions/
+cp dekube-provider-servicemonitor/servicemonitor.py extensions/
 
 python3 helmfile2compose.py \
   --extensions-dir ./extensions \
@@ -85,7 +85,7 @@ python3 helmfile2compose.py \
 
 Worst CC: `_resolve_port` (13, C), `_process_servicemonitors` (12, C).
 
-The `E0401: Unable to import 'h2c'` is expected — extensions import from h2c-core at runtime, not at lint time.
+The `E0401: Unable to import 'dekube'` is expected — extensions import from dekube-engine at runtime, not at lint time.
 
 ## License
 
