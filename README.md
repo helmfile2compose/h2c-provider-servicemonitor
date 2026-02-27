@@ -47,7 +47,7 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 - PrometheusRule / Alertmanager / AlertmanagerConfig
 - PodMonitor
 - additionalScrapeConfigs
-- Grafana datasource auto-wiring (use a `replacement` in `helmfile2compose.yaml` to rewrite `kube-prometheus-stack-prometheus.monitoring` → `prometheus`)
+- Grafana datasource auto-wiring (use a `replacement` in `dekube.yaml` to rewrite `kube-prometheus-stack-prometheus.monitoring` → `prometheus`)
 
 For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://docs.dekube.io/maintainer/known-workarounds/kube-prometheus-stack/).
 
