@@ -49,7 +49,7 @@ Replaces the Prometheus Operator's ServiceMonitor reconciliation with a static P
 - additionalScrapeConfigs
 - Grafana datasource auto-wiring (use a `replacement` in `dekube.yaml` to rewrite `kube-prometheus-stack-prometheus.monitoring` → `prometheus`)
 
-For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://docs.dekube.io/maintainer/known-workarounds/kube-prometheus-stack/).
+For Grafana setup (k8s-sidecar workaround), see [kube-prometheus-stack workaround](https://helmfile2compose.dekube.io/known-workarounds/kube-prometheus-stack/).
 
 ## Usage
 
