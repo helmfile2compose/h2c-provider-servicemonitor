@@ -46,8 +46,8 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
                 }
             else:
                 print(
-                    f"Warning: ignoring extra Prometheus CR "
-                    f"'{m.get('metadata', {}).get('name', '?')}' "
+                    f"  servicemonitor: ignoring extra Prometheus CR "
+                    f"'{(m.get('metadata') or {}).get('name', '?')}' "
                     f"(only the first is used)",
                     file=sys.stderr,
                 )
@@ -66,7 +66,7 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
             name = m.get("metadata", {}).get("name", "?")
             spec = m.get("spec", {})
 
-            match_labels = spec.get("selector", {}).get("matchLabels", {})
+            match_labels = (spec.get("selector") or {}).get("matchLabels") or {}
             if not match_labels:
                 ctx.warnings.append(
                     f"ServiceMonitor '{name}': no selector.matchLabels, skipping"
@@ -325,12 +325,12 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
 
 def _build_tls_config(ep: dict, sm_name: str, ctx) -> tuple[dict, list[str]]:
     """Build Prometheus TLS config and CA mounts from a ServiceMonitor endpoint."""
-    tls_cfg = ep.get("tlsConfig", {})
+    tls_cfg = ep.get("tlsConfig") or {}
     tls_config: dict = {}
     ca_mounts: list[str] = []
 
     # CA certificate
-    ca_ref = tls_cfg.get("ca", {}).get("configMap", {})
+    ca_ref = (tls_cfg.get("ca") or {}).get("configMap") or {}
     cm_name = ca_ref.get("name", "")
     cm_key = ca_ref.get("key", "ca-certificates.crt")
     if cm_name and cm_name in ctx.configmaps:
