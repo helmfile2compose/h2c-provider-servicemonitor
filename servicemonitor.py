@@ -333,6 +333,10 @@ def _build_tls_config(ep: dict, sm_name: str, ctx) -> tuple[dict, list[str]]:
     ca_ref = (tls_cfg.get("ca") or {}).get("configMap") or {}
     cm_name = ca_ref.get("name", "")
     cm_key = ca_ref.get("key", "ca-certificates.crt")
+    if "/" in cm_key or ".." in cm_key:
+        ctx.warnings.append(
+            f"ServiceMonitor '{sm_name}': CA key '{cm_key}' contains path separators — skipped")
+        return {}, []
     if cm_name and cm_name in ctx.configmaps:
         container_path = f"/etc/prometheus/ca/{cm_name}/{cm_key}"
         tls_config["ca_file"] = container_path
