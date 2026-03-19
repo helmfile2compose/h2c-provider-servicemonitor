@@ -89,7 +89,7 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
                 target_svc = None  # no Service — port resolution limited
 
             # Skip excluded services
-            if _is_excluded(compose_name, exclude):
+            if self._is_excluded(compose_name, exclude):
                 continue
 
             endpoints = spec.get("endpoints", [])
@@ -130,7 +130,7 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
 
     def _write_scrape_config(self, scrape_jobs: list[dict], ctx) -> None:
         """Write prometheus.yml from resolved scrape jobs."""
-        prom_config = _render_prometheus_yml(scrape_jobs)
+        prom_config = self._render_prometheus_yml(scrape_jobs)
         cm_name = "prometheus-scrape-config"
         cm_dir = os.path.join(ctx.output_dir, "configmaps", cm_name)
         os.makedirs(cm_dir, exist_ok=True)
@@ -315,59 +315,59 @@ class ServiceMonitorProvider(Provider):  # pylint: disable=too-few-public-method
         ca_mounts: list[str] = []
 
         if scheme == "https":
-            tls_config, ca_mounts = _build_tls_config(
+            tls_config, ca_mounts = self._build_tls_config(
                 ep, sm_name, ctx)
             if tls_config:
                 job["tls_config"] = tls_config
 
         return {"job": job, "ca_mounts": ca_mounts}
 
+    @staticmethod
+    def _build_tls_config(ep: dict, sm_name: str, ctx) -> tuple[dict, list[str]]:
+        """Build Prometheus TLS config and CA mounts from a ServiceMonitor endpoint."""
+        tls_cfg = ep.get("tlsConfig") or {}
+        tls_config: dict = {}
+        ca_mounts: list[str] = []
 
-def _build_tls_config(ep: dict, sm_name: str, ctx) -> tuple[dict, list[str]]:
-    """Build Prometheus TLS config and CA mounts from a ServiceMonitor endpoint."""
-    tls_cfg = ep.get("tlsConfig") or {}
-    tls_config: dict = {}
-    ca_mounts: list[str] = []
+        # CA certificate
+        ca_ref = (tls_cfg.get("ca") or {}).get("configMap") or {}
+        cm_name = ca_ref.get("name", "")
+        cm_key = ca_ref.get("key", "ca-certificates.crt")
+        if "/" in cm_key or ".." in cm_key:
+            ctx.warnings.append(
+                f"ServiceMonitor '{sm_name}': CA key '{cm_key}' contains path separators — skipped")
+            return {}, []
+        if cm_name and cm_name in ctx.configmaps:
+            container_path = f"/etc/prometheus/ca/{cm_name}/{cm_key}"
+            tls_config["ca_file"] = container_path
+            ca_mounts.append(
+                f"./configmaps/{cm_name}/{cm_key}:{container_path}:ro"
+            )
+        elif cm_name:
+            ctx.warnings.append(
+                f"ServiceMonitor '{sm_name}': CA configmap '{cm_name}' "
+                f"not found — TLS job generated without ca_file"
+            )
 
-    # CA certificate
-    ca_ref = (tls_cfg.get("ca") or {}).get("configMap") or {}
-    cm_name = ca_ref.get("name", "")
-    cm_key = ca_ref.get("key", "ca-certificates.crt")
-    if "/" in cm_key or ".." in cm_key:
-        ctx.warnings.append(
-            f"ServiceMonitor '{sm_name}': CA key '{cm_key}' contains path separators — skipped")
-        return {}, []
-    if cm_name and cm_name in ctx.configmaps:
-        container_path = f"/etc/prometheus/ca/{cm_name}/{cm_key}"
-        tls_config["ca_file"] = container_path
-        ca_mounts.append(
-            f"./configmaps/{cm_name}/{cm_key}:{container_path}:ro"
-        )
-    elif cm_name:
-        ctx.warnings.append(
-            f"ServiceMonitor '{sm_name}': CA configmap '{cm_name}' "
-            f"not found — TLS job generated without ca_file"
-        )
+        # Server name for TLS verification
+        server_name = tls_cfg.get("serverName", "")
+        if server_name:
+            tls_config["server_name"] = server_name
 
-    # Server name for TLS verification
-    server_name = tls_cfg.get("serverName", "")
-    if server_name:
-        tls_config["server_name"] = server_name
+        return tls_config, ca_mounts
 
-    return tls_config, ca_mounts
+    @staticmethod
+    def _is_excluded(name: str, exclude: list[str]) -> bool:
+        """Check if a service name matches any exclude pattern."""
+        return any(fnmatch.fnmatch(name, pat) for pat in exclude)
 
+    # -- YAML generation -------------------------------------------------
 
-def _is_excluded(name: str, exclude: list[str]) -> bool:
-    """Check if a service name matches any exclude pattern."""
-    return any(fnmatch.fnmatch(name, pat) for pat in exclude)
-
-
-# -- YAML generation -----------------------------------------------------
-
-def _render_prometheus_yml(scrape_jobs: list[dict]) -> str:
-    """Render a minimal prometheus.yml from scrape job dicts."""
-    config = {
-        "global": {"scrape_interval": "30s"},
-        "scrape_configs": scrape_jobs,
-    }
-    return yaml.dump(config, default_flow_style=False, sort_keys=False)
+    @staticmethod
+    def _render_prometheus_yml(scrape_jobs: list[dict]) -> str:
+        """Render a minimal prometheus.yml from scrape job dicts."""
+        config = {
+            "global": {"scrape_interval": "30s"},
+            "scrape_configs": scrape_jobs,
+        }
+        return yaml.dump(config, default_flow_style=False, sort_keys=False)
